@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
+import { tick } from "@/features/pomodoro";
 
 export type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
 
@@ -72,3 +73,13 @@ export const useTimerStore = create<TimerState>()(
 
 export const useTimerStoreActions = () =>
   useTimerStore((state) => state.actions);
+
+
+
+useTimerStore.subscribe((state) => {
+  return state.timeLeft;
+}, (timeLeft) => {
+  tick(timeLeft);
+}, {
+  fireImmediately: true,
+});

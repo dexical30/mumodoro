@@ -18,12 +18,7 @@ const INITIAL_PLAYLIST: Video[] = [
     id: "2",
     url: "https://www.youtube.com/watch?v=4xDzrJKXOOY",
     title: "Synthwave Radio",
-  },
-  {
-    id: "3",
-    url: "https://www.youtube.com/watch?v=DWcJFNfaw9c",
-    title: "Ambient Study Music",
-  },
+  }
 ];
 
 interface PlaylistState {

@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { Settings, Volume2, VolumeX } from 'lucide-react';
-import { useSettingsStore } from '../../../store/useSettingsStore';
+import { useSettingsStore, useSettingsStoreActions } from '../../../store/useSettingsStore';
 import {
   Sheet,
   SheetContent,
@@ -19,9 +19,12 @@ export const SettingsSidebar = () => {
   const {
     alarmVolume,
     soundEnabled,
-    actions,
+    videoDisplayed,
   } = useSettingsStore();
-  const { setAlarmVolume, setSoundEnabled } = actions;
+  const { setAlarmVolume, setSoundEnabled, setVideoDisplayed } = useSettingsStoreActions();
+
+
+  
 
   return (
     <Sheet>
@@ -38,7 +41,7 @@ export const SettingsSidebar = () => {
           </SheetDescription>
         </SheetHeader>
 
-        <div className="grid gap-8 py-8">
+        <div className="grid gap-8 py-8 px-4">
           <div className="flex items-center justify-between space-x-2">
             <div className="flex flex-col space-y-1">
               <Label htmlFor="sound-enabled" className="text-white font-medium">Timer Sound</Label>
@@ -48,6 +51,19 @@ export const SettingsSidebar = () => {
               id="sound-enabled"
               checked={soundEnabled}
               onCheckedChange={setSoundEnabled}
+              className="data-[state=checked]:bg-orange-500"
+            />
+          </div>
+
+          <div className="flex items-center justify-between space-x-2">
+            <div className="flex flex-col space-y-1">
+              <Label htmlFor="sound-enabled" className="text-white font-medium">video displayed</Label>
+              <Text as="span" className="text-xs text-white/60">Display a background video</Text>
+            </div>
+            <Switch
+              id="video-displayed"
+              checked={videoDisplayed}
+              onCheckedChange={() => setVideoDisplayed(!videoDisplayed)}
               className="data-[state=checked]:bg-orange-500"
             />
           </div>
@@ -72,7 +88,7 @@ export const SettingsSidebar = () => {
                 value={[alarmVolume]}
                 max={1}
                 step={0.01}
-                onValueChange={(value) => setAlarmVolume(value[0])}
+                onValueChange={(value) => setAlarmVolume(value[0] ?? 0)}
                 className="flex-1 [&_.range-slider-thumb]:bg-orange-500 [&_.range-slider-track]:bg-white/20 [&_.range-slider-range]:bg-orange-500"
               />
             </div>
