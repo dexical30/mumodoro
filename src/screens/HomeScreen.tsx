@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { BackgroundPlayer } from '../app/components/mumodoro/BackgroundPlayer';
 import { TimerDisplay } from '../app/components/mumodoro/TimerDisplay';
 import { TodoList } from '../app/components/mumodoro/TodoList';
@@ -7,6 +8,7 @@ import { MemoDialog } from '../app/components/mumodoro/MemoDialog';
 import { SettingsSidebar } from '../app/components/mumodoro/SettingsSidebar';
 import { ThemeToggle } from '../app/components/mumodoro/ThemeToggle';
 import { Text } from '../app/components/ui/text';
+import { Button } from '../app/components/ui/button';
 
 export const HomeScreen = () => {
   return (
@@ -22,6 +24,9 @@ export const HomeScreen = () => {
            </div>
 
            <div className="absolute top-8 right-8 flex items-center gap-2 z-50">
+             <Button asChild size="sm" className="bg-white/10 hover:bg-white/20 text-white border border-white/10">
+               <Link to="/stats">통계</Link>
+             </Button>
              <ThemeToggle />
              <SettingsSidebar />
            </div>
