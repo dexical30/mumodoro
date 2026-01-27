@@ -5,6 +5,7 @@ export interface Todo {
   id: string;
   text: string;
   completed: boolean;
+  completedAt: string | null;
   notes: string[]; // Notes added after sessions
 }
 
@@ -30,13 +31,25 @@ export const useTodoStore = create<TodoState>()(
           set((state) => ({
             todos: [
               ...state.todos,
-              { id: crypto.randomUUID(), text, completed: false, notes: [] },
+              {
+                id: crypto.randomUUID(),
+                text,
+                completed: false,
+                completedAt: null,
+                notes: [],
+              },
             ],
           })),
         toggleTodo: (id) =>
           set((state) => ({
             todos: state.todos.map((t) =>
-              t.id === id ? { ...t, completed: !t.completed } : t
+              t.id === id
+                ? {
+                    ...t,
+                    completed: !t.completed,
+                    completedAt: t.completed ? null : new Date().toISOString(),
+                  }
+                : t
             ),
           })),
         deleteTodo: (id) =>
@@ -55,6 +68,21 @@ export const useTodoStore = create<TodoState>()(
     })),
     {
       name: "todo-storage",
+      version: 1,
+      migrate: (persistedState) => {
+        if (!persistedState || typeof persistedState !== "object") {
+          return persistedState;
+        }
+        const state = persistedState as Pick<TodoState, "todos" | "activeTodoId">;
+        return {
+          ...state,
+          todos: (state.todos ?? []).map((todo) => ({
+            ...todo,
+            completedAt:
+              todo.completedAt ?? (todo.completed ? new Date().toISOString() : null),
+          })),
+        };
+      },
       partialize: (state) => ({
         todos: state.todos,
         activeTodoId: state.activeTodoId,
