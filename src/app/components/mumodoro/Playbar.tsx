@@ -22,11 +22,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { YoutubeSearchPanel } from "./YoutubeSearchPanel";
 
 export const Playbar = () => {
   const { playlist, currentVideoIndex, isPlaying } = usePlaylistStore();
-  const { setPlaying, nextTrack, addVideo, removeVideo, playVideoAtIndex } =
-    usePlaylistStoreActions();
+  const {
+    setPlaying,
+    nextTrack,
+    addManualVideo,
+    removeVideo,
+    playVideoAtIndex,
+  } = usePlaylistStoreActions();
 
   const [newUrl, SXNewUrl] = useState("");
   const [newTitle, SXNewTitle] = useState("");
@@ -35,7 +41,7 @@ export const Playbar = () => {
 
   const handleAddVideo = () => {
     if (newUrl && newTitle) {
-      addVideo(newUrl, newTitle);
+      addManualVideo(newUrl, newTitle);
       SXNewUrl("");
       SXNewTitle("");
     }
@@ -128,6 +134,8 @@ export const Playbar = () => {
                 </div>
               </div>
 
+              <YoutubeSearchPanel />
+
               <ScrollArea className="h-[250px] pr-4">
                 <div className="space-y-2">
                   {playlist.map((video, idx) => (
@@ -140,9 +148,18 @@ export const Playbar = () => {
                       }`}
                     >
                       <button
-                        className="flex-1 text-left truncate text-sm px-2"
+                        className="flex flex-1 items-center gap-2 text-left text-sm px-2"
                         onClick={() => playVideoAtIndex(idx)}
                       >
+                        {video.thumbnail ? (
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title}
+                            className="h-8 w-12 rounded object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-12 rounded bg-white/5" />
+                        )}
                         <Text
                           as="span"
                           className={

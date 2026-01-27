@@ -20,3 +20,27 @@ export const extractVideoId = (url: string) => {
   }
   return null;
 };
+
+export const buildYoutubeUrl = (params: {
+  videoId?: string | null;
+  playlistId?: string | null;
+  fallbackUrl?: string | null;
+}) => {
+  if (params.fallbackUrl) {
+    return params.fallbackUrl;
+  }
+  if (params.playlistId) {
+    return `https://www.youtube.com/playlist?list=${params.playlistId}`;
+  }
+  if (params.videoId) {
+    return `https://www.youtube.com/watch?v=${params.videoId}`;
+  }
+  return "";
+};
+
+export const buildYoutubeThumbnail = (videoId?: string | null) => {
+  if (!videoId) {
+    return "";
+  }
+  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+};
