@@ -6,6 +6,8 @@ export interface Todo {
   text: string;
   completed: boolean;
   completedAt: string | null;
+  status: "today" | "overday";
+  createdAt: string;
   notes: string[]; // Notes added after sessions
 }
 
@@ -18,8 +20,13 @@ interface TodoState {
     deleteTodo: (id: string) => void;
     setActiveTodo: (id: string | null) => void;
     addNoteToTodo: (id: string, note: string) => void;
+    refreshTodoStatuses: (now?: number) => void;
+    restoreTodoToToday: (id: string) => void;
   };
 }
+
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const getNowIso = () => new Date().toISOString();
 
 export const useTodoStore = create<TodoState>()(
   persist(
@@ -36,6 +43,8 @@ export const useTodoStore = create<TodoState>()(
                 text,
                 completed: false,
                 completedAt: null,
+                status: "today",
+                createdAt: getNowIso(),
                 notes: [],
               },
             ],
@@ -64,6 +73,33 @@ export const useTodoStore = create<TodoState>()(
               t.id === id ? { ...t, notes: [...t.notes, note] } : t
             ),
           })),
+        refreshTodoStatuses: (now = Date.now()) =>
+          set((state) => {
+            let nextActiveTodoId = state.activeTodoId;
+            const todos = state.todos.map((todo) => {
+              const createdAtMs = Date.parse(todo.createdAt);
+              if (
+                todo.status === "overday" ||
+                Number.isNaN(createdAtMs) ||
+                now - createdAtMs < DAY_IN_MS
+              ) {
+                return todo;
+              }
+              if (nextActiveTodoId === todo.id) {
+                nextActiveTodoId = null;
+              }
+              return { ...todo, status: "overday" };
+            });
+            return { todos, activeTodoId: nextActiveTodoId };
+          }),
+        restoreTodoToToday: (id) =>
+          set((state) => ({
+            todos: state.todos.map((todo) =>
+              todo.id === id
+                ? { ...todo, status: "today", createdAt: getNowIso() }
+                : todo
+            ),
+          })),
       },
     })),
     {
@@ -87,6 +123,22 @@ export const useTodoStore = create<TodoState>()(
         todos: state.todos,
         activeTodoId: state.activeTodoId,
       }),
+      migrate: (persistedState) => {
+        const state = persistedState as {
+          todos?: Todo[];
+          activeTodoId?: string | null;
+        };
+        const nowIso = getNowIso();
+        return {
+          todos: (state.todos ?? []).map((todo) => ({
+            ...todo,
+            status: todo.status ?? "today",
+            createdAt: todo.createdAt ?? nowIso,
+            notes: todo.notes ?? [],
+          })),
+          activeTodoId: state.activeTodoId ?? null,
+        };
+      },
     }
   )
 );
