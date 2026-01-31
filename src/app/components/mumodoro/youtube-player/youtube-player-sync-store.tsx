@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { YoutubePlayer } from "./youtube-player";
-import { usePlaylistStore } from "@/store/usePlaylistStore";
+import { getPlaylistItemUrl, usePlaylistStore } from "@/store/usePlaylistStore";
 
 interface YoutubePlayerSyncStoreProps
   extends Omit<
@@ -34,8 +34,9 @@ const YoutubePlayerSyncStore = (props: YoutubePlayerSyncStoreProps) => {
     return usePlaylistStore.subscribe(
       (state) => state.playlist[state.currentVideoIndex],
       (currentVideo) => {
-        if (currentVideo) {
-          player.current.changeVideo(currentVideo.url);
+        const nextUrl = getPlaylistItemUrl(currentVideo);
+        if (nextUrl) {
+          player.current.changeVideo(nextUrl);
         }
       },
       {
